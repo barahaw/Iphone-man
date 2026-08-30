@@ -1,0 +1,762 @@
+/* ==========================================================================
+   iPhone Man — Production Design System & Single Source of Truth
+   Tailwind CSS v4.3.3 Architecture
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0. EXTERNAL FONT IMPORTS
+   Loading Inter (English), IBM Plex Sans Arabic (Arabic), and Heebo (Hebrew)
+   -------------------------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* --------------------------------------------------------------------------
+   1. TAILWIND CSS V4 CORE IMPORT
+   -------------------------------------------------------------------------- */
+@import "tailwindcss";
+
+/* --------------------------------------------------------------------------
+   2. TAILWIND V4 THEME CONFIGURATION (@theme)
+   Figma Variable Mapping & Primitive/Semantic Token Engine
+   -------------------------------------------------------------------------- */
+@theme {
+  /* ========================================================================
+     PRIMITIVE COLORS — NEUTRAL SCALE
+     Figma: color/primitive/neutral/{step}
+     Mapping core brand hex values into a seamless 11-step palette.
+     ======================================================================== */
+  --color-neutral-50: #FFFFFF;  /* Core Brand: Primary Background */
+  --color-neutral-100: #F5F5F7; /* Core Brand: Sections / Product Cards */
+  --color-neutral-200: #E5E5E7; /* Core Brand: Borders / Dividers */
+  --color-neutral-300: #D2D2D7; /* Subtle Borders / Disabled Backgrounds */
+  --color-neutral-400: #A1A1A6; /* Disabled Text / Muted Icons */
+  --color-neutral-500: #86868B; /* Core Brand: Secondary / Muted Text */
+  --color-neutral-600: #6E6E73; /* Dark Mode Secondary / Muted Elements */
+  --color-neutral-700: #424245; /* Dark Mode Borders / Muted Text */
+  --color-neutral-800: #1D1D1F; /* Core Brand: Primary Text */
+  --color-neutral-900: #161617; /* Dark Mode Surface Level 2 */
+  --color-neutral-950: #000000; /* Core Brand: Navbar / Hero / Footer / Dark Surfaces */
+
+  /* ========================================================================
+     PRIMITIVE COLORS — BRAND BLUE SCALE
+     Figma: color/primitive/blue/{step}
+     Primary brand blue strictly preserved at step 500 (#0071E3).
+     ======================================================================== */
+  --color-blue-50: #F0F6FE;  /* Ultra-light blue tint / Badges */
+  --color-blue-100: #E8F2FC; /* Light blue background */
+  --color-blue-200: #B8D9FA; /* Disabled interactive blue */
+  --color-blue-300: #70B4F3; /* Soft highlight blue */
+  --color-blue-400: #2B8CEB; /* Focus ring & Dark mode interactive hover */
+  --color-blue-500: #0071E3; /* Core Brand: CTA / Links / Interactive Elements */
+  --color-blue-600: #005BB5; /* Primary Hover */
+  --color-blue-700: #00478F; /* Primary Active */
+  --color-blue-800: #00356B; /* Dark accent blue */
+  --color-blue-900: #002447; /* Deep brand blue container */
+  --color-blue-950: #00152B; /* Dark mode blue surface */
+
+  /* ========================================================================
+     FEEDBACK COLORS
+     Figma: color/feedback/{type}/{step}
+     Restrained Apple-inspired functional feedback palette.
+     ======================================================================== */
+  --color-success-50: #E8F8EC;
+  --color-success-500: #34C759;
+  --color-success-600: #28A745;
+
+  --color-warning-50: #FFF8EE;
+  --color-warning-500: #FF9500;
+  --color-warning-600: #E08200;
+
+  --color-error-50: #FFEEEE;
+  --color-error-500: #FF3B30;
+  --color-error-600: #D70015;
+
+  --color-info-50: #F0F6FE;
+  --color-info-500: #0071E3;
+  --color-info-600: #005BB5;
+
+  /* ========================================================================
+     SEMANTIC COLOR TOKENS (Dynamic theme binding)
+     Figma: color/background/*, color/text/*, color/border/*, color/interactive/*
+     ======================================================================== */
+  /* Backgrounds */
+  --color-background-primary: var(--bg-primary);
+  --color-background-secondary: var(--bg-secondary);
+  --color-background-tertiary: var(--bg-tertiary);
+  --color-background-dark: var(--bg-dark);
+  --color-background-brand: var(--bg-brand);
+  --color-background-elevated: var(--bg-elevated);
+
+  /* Typography */
+  --color-text-primary: var(--txt-primary);
+  --color-text-secondary: var(--txt-secondary);
+  --color-text-tertiary: var(--txt-tertiary);
+  --color-text-disabled: var(--txt-disabled);
+  --color-text-inverse: var(--txt-inverse);
+  --color-text-brand: var(--txt-brand);
+
+  /* Borders */
+  --color-border-default: var(--bdr-default);
+  --color-border-subtle: var(--bdr-subtle);
+  --color-border-strong: var(--bdr-strong);
+  --color-border-brand: var(--bdr-brand);
+
+  /* Interactive Elements */
+  --color-interactive-primary: var(--interactive-primary);
+  --color-interactive-primary-hover: var(--interactive-primary-hover);
+  --color-interactive-primary-active: var(--interactive-primary-active);
+  --color-interactive-primary-disabled: var(--interactive-primary-disabled);
+
+  --color-interactive-secondary: var(--interactive-secondary);
+  --color-interactive-secondary-hover: var(--interactive-secondary-hover);
+  --color-interactive-secondary-active: var(--interactive-secondary-active);
+
+  --color-interactive-focus: var(--interactive-focus);
+
+  /* ========================================================================
+     TYPOGRAPHY FONT FAMILIES
+     Figma: font/family/{english|arabic|hebrew|sans}
+     ======================================================================== */
+  --font-english: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-hebrew: 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', 'IBM Plex Sans Arabic', 'Heebo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display-ar: 'Tajawal', 'IBM Plex Sans Arabic', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ========================================================================
+     TYPOGRAPHY SCALE & METRICS
+     Figma: font/size/{step}
+     ======================================================================== */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.875rem;
+
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.15;
+
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1.1;
+
+  --text-7xl: 4.5rem;
+  --text-7xl--line-height: 1.05;
+
+  --text-8xl: 6rem;
+  --text-8xl--line-height: 1;
+
+  /* ========================================================================
+     FONT WEIGHTS
+     Figma: font/weight/{regular|medium|semibold|bold}
+     ======================================================================== */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ========================================================================
+     SPACING SYSTEM (4px Foundation)
+     Figma: spacing/{value}
+     ======================================================================== */
+  --spacing-1: 0.25rem;   /* 4px */
+  --spacing-2: 0.5rem;    /* 8px */
+  --spacing-3: 0.75rem;   /* 12px */
+  --spacing-4: 1rem;      /* 16px */
+  --spacing-5: 1.25rem;   /* 20px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
+  --spacing-20: 5rem;     /* 80px */
+  --spacing-24: 6rem;     /* 96px */
+  --spacing-32: 8rem;     /* 128px */
+  --spacing-40: 10rem;    /* 160px */
+  --spacing-48: 12rem;    /* 192px */
+  --spacing-64: 16rem;    /* 256px */
+  --spacing-80: 20rem;    /* 320px */
+  --spacing-96: 24rem;    /* 384px */
+  --spacing-128: 32rem;   /* 512px */
+
+  /* ========================================================================
+     BORDER RADIUS SYSTEM
+     Figma: radius/{step}
+     Restrained modern curvature.
+     ======================================================================== */
+  --radius-none: 0px;
+  --radius-xs: 0.125rem;  /* 2px */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.25rem;  /* 20px */
+  --radius-3xl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+
+  /* ========================================================================
+     SHADOW SYSTEM
+     Figma: shadow/{step}
+     Subtle, elevated Apple-inspired shadows.
+     ======================================================================== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 32px -8px rgba(0, 0, 0, 0.07), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 32px 48px -12px rgba(0, 0, 0, 0.1);
+
+  /* ========================================================================
+     BREAKPOINTS
+     Figma: breakpoint/{sm|md|lg|xl|2xl}
+     ======================================================================== */
+  --breakpoint-sm: 640px;   /* Mobile landscape / Large mobile */
+  --breakpoint-md: 768px;   /* Tablet */
+  --breakpoint-lg: 1024px;  /* Laptop */
+  --breakpoint-xl: 1280px;  /* Desktop */
+  --breakpoint-2xl: 1536px; /* Large desktop */
+
+  /* ========================================================================
+     TRANSITION DURATIONS & EASING CURVES (CENTRALIZED MOTION SYSTEM)
+     Figma: motion/duration/{instant|fast|normal|slow|emphasis}
+     Figma: motion/ease/{standard|enter|exit|emphasized|spring}
+     ======================================================================== */
+  --motion-duration-instant: 50ms;
+  --motion-duration-fast: 150ms;
+  --motion-duration-normal: 250ms;
+  --motion-duration-slow: 350ms;
+  --motion-duration-emphasis: 500ms;
+
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* Alias mappings for CSS utility shorthand */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --duration-instant: 50ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-emphasis: 500ms;
+
+  /* ========================================================================
+     Z-INDEX SYSTEM
+     Figma: z-index/{level}
+     ======================================================================== */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-toast: 1500;
+  --z-tooltip: 1600;
+}
+
+/* --------------------------------------------------------------------------
+   3. ROOT & DARK MODE SEMANTIC TOKEN BINDING
+   Provides dynamic switching for dark mode & accessible high contrast
+   -------------------------------------------------------------------------- */
+:root {
+  /* Light Mode Semantic Mappings */
+  --bg-primary: var(--color-neutral-50);     /* #FFFFFF */
+  --bg-secondary: var(--color-neutral-100);  /* #F5F5F7 */
+  --bg-tertiary: var(--color-neutral-200);   /* #E5E5E7 */
+  --bg-dark: var(--color-neutral-950);       /* #000000 */
+  --bg-brand: var(--color-blue-500);         /* #0071E3 */
+  --bg-elevated: var(--color-neutral-50);    /* #FFFFFF */
+
+  --txt-primary: var(--color-neutral-800);   /* #1D1D1F */
+  --txt-secondary: var(--color-neutral-500); /* #86868B */
+  --txt-tertiary: var(--color-neutral-400);  /* #A1A1A6 */
+  --txt-disabled: var(--color-neutral-300);  /* #D2D2D7 */
+  --txt-inverse: var(--color-neutral-50);    /* #FFFFFF */
+  --txt-brand: var(--color-blue-500);       /* #0071E3 */
+
+  --bdr-default: var(--color-neutral-200);  /* #E5E5E7 */
+  --bdr-subtle: var(--color-neutral-100);   /* #F5F5F7 */
+  --bdr-strong: var(--color-neutral-400);   /* #A1A1A6 */
+  --bdr-brand: var(--color-blue-500);       /* #0071E3 */
+
+  --interactive-primary: var(--color-blue-500);          /* #0071E3 */
+  --interactive-primary-hover: var(--color-blue-600);    /* #005BB5 */
+  --interactive-primary-active: var(--color-blue-700);   /* #00478F */
+  --interactive-primary-disabled: var(--color-blue-200); /* #B8D9FA */
+
+  --interactive-secondary: var(--color-neutral-100);        /* #F5F5F7 */
+  --interactive-secondary-hover: var(--color-neutral-200);  /* #E5E5E7 */
+  --interactive-secondary-active: var(--color-neutral-300); /* #D2D2D7 */
+
+  --interactive-focus: var(--color-blue-500);
+}
+
+.dark {
+  /* Dark Mode Semantic Mappings — Sophisticated OLED / Space Black balance */
+  --bg-primary: #000000;                     /* Pure #000000 for hero/navbar/surfaces */
+  --bg-secondary: #1D1D1F;                   /* Apple Dark surface #1D1D1F */
+  --bg-tertiary: #343436;                    /* Raised surface #343436 */
+  --bg-dark: #000000;                        /* Dark surface */
+  --bg-brand: var(--color-blue-500);         /* Brand blue backdrop */
+  --bg-elevated: #1D1D1F;                    /* Elevated card background */
+
+  --txt-primary: #FFFFFF;                   /* Pure White #FFFFFF */
+  --txt-secondary: #A1A1A6;                 /* Muted Dark text #A1A1A6 */
+  --txt-tertiary: #86868B;                  /* Tertiary dark text */
+  --txt-disabled: #424245;                 /* Disabled dark text */
+  --txt-inverse: #1D1D1F;                   /* Inverse text on light badges */
+  --txt-brand: #2B8CEB;                     /* High-contrast brand blue for dark mode */
+
+  --bdr-default: #343436;                   /* Dark mode border #343436 */
+  --bdr-subtle: #1D1D1F;                    /* Dark mode subtle divider */
+  --bdr-strong: #424245;                    /* Dark mode strong border */
+  --bdr-brand: #0071E3;                     /* Dark mode brand border */
+
+  --interactive-primary: var(--color-blue-500);
+  --interactive-primary-hover: var(--color-blue-400);    /* Lighter blue on dark hover */
+  --interactive-primary-active: var(--color-blue-600);
+  --interactive-primary-disabled: #343436;
+
+  --interactive-secondary: #1D1D1F;
+  --interactive-secondary-hover: #343436;
+  --interactive-secondary-active: #424245;
+
+  --interactive-focus: var(--color-blue-400);
+}
+
+/* --------------------------------------------------------------------------
+   4. BASE GLOBAL STYLES & ACCESSIBLE REDUCED MOTION
+   -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    font-weight: var(--font-weight-regular);
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Language-specific font overrides for English, Arabic, Hebrew */
+  :root[lang="en"],
+  [dir="ltr"][lang="en"] {
+    font-family: var(--font-english);
+  }
+
+  :root[lang="ar"],
+  [dir="rtl"][lang="ar"] {
+    font-family: var(--font-arabic);
+  }
+
+  :root[lang="he"],
+  [dir="rtl"][lang="he"] {
+    font-family: var(--font-hebrew);
+  }
+
+  /* Selection styling */
+  ::selection {
+    background-color: var(--color-blue-500);
+    color: #FFFFFF;
+  }
+
+  /* Accessibility focus ring foundation */
+  :focus-visible {
+    outline: 2px solid var(--color-interactive-focus);
+    outline-offset: 2px;
+  }
+
+  /* Accessibility: Strict Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .hero-float,
+    .animate-toast-in,
+    .animate-badge-pop,
+    .animate-image-swap,
+    .reveal-up {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. KEYFRAME ANIMATIONS & UTILITY MOTION CLASSES
+   -------------------------------------------------------------------------- */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes badgePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+@keyframes imageSwap {
+  from {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drawerBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@layer utilities {
+  .animate-toast-in {
+    animation: toastIn var(--motion-duration-normal) var(--motion-ease-emphasized) forwards;
+  }
+
+  .animate-badge-pop {
+    animation: badgePop var(--motion-duration-fast) var(--motion-ease-spring);
+  }
+
+  .animate-image-swap {
+    animation: imageSwap var(--motion-duration-normal) var(--motion-ease-emphasized) forwards;
+  }
+
+  .animate-backdrop-fade {
+    animation: drawerBackdropFade var(--motion-duration-fast) var(--motion-ease-enter) forwards;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. COMPONENT-READY UTILITY CLASSES & LOGICAL RTL HELPERS
+   High-performance pre-composed patterns using Design System tokens
+   -------------------------------------------------------------------------- */
+@layer components {
+  /* Button Abstractions with Motion Tokens */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-3);
+    padding-inline: var(--spacing-6);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-inverse);
+    background-color: var(--color-interactive-primary);
+    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+                transform var(--motion-duration-fast) var(--motion-ease-standard),
+                box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-interactive-primary-hover);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--color-interactive-primary-active);
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      background-color: var(--color-interactive-primary-disabled);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-3);
+    padding-inline: var(--spacing-6);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    background-color: var(--color-interactive-secondary);
+    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+                transform var(--motion-duration-fast) var(--motion-ease-standard);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-interactive-secondary-hover);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--color-interactive-secondary-active);
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-2);
+    padding-inline: var(--spacing-4);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-brand);
+    background-color: transparent;
+    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+                color var(--motion-duration-fast) var(--motion-ease-standard),
+                transform var(--motion-duration-fast) var(--motion-ease-standard);
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-background-secondary);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    &:disabled {
+      color: var(--color-text-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding-block: var(--spacing-3);
+    padding-inline: var(--spacing-6);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-medium);
+    color: #FFFFFF;
+    background-color: var(--color-error-500);
+    transition: background-color var(--motion-duration-fast) var(--motion-ease-standard),
+                transform var(--motion-duration-fast) var(--motion-ease-standard);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-error-600);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+  }
+
+  /* Form Input Abstraction */
+  .input-field {
+    width: 100%;
+    padding-block: var(--spacing-3);
+    padding-inline: var(--spacing-4);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    font-size: var(--text-base);
+    transition: border-color var(--motion-duration-fast) var(--motion-ease-standard),
+                box-shadow var(--motion-duration-fast) var(--motion-ease-standard);
+
+    &::placeholder {
+      color: var(--color-text-tertiary);
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-border-strong);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-interactive-focus);
+      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+    }
+
+    &.input-error {
+      border-color: var(--color-error-500);
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.15);
+      }
+    }
+
+    &:disabled {
+      background-color: var(--color-background-secondary);
+      color: var(--color-text-disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  /* Product Card Surface with Restrained Motion */
+  .card-surface {
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-6);
+    transition: border-color var(--motion-duration-normal) var(--motion-ease-emphasized),
+                transform var(--motion-duration-normal) var(--motion-ease-emphasized),
+                box-shadow var(--motion-duration-normal) var(--motion-ease-emphasized);
+
+    @media (hover: hover) {
+      &.card-interactive:hover {
+        border-color: var(--color-border-strong);
+        transform: translate3d(0, -3px, 0);
+        box-shadow: var(--shadow-md);
+      }
+    }
+
+    &.card-selected {
+      border-color: var(--color-border-brand);
+      box-shadow: 0 0 0 1px var(--color-border-brand);
+    }
+  }
+
+  /* Navigation Link */
+  .nav-link {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-secondary);
+    transition: color var(--motion-duration-fast) var(--motion-ease-standard);
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+
+    &.active {
+      color: var(--color-text-brand);
+      font-weight: var(--font-weight-medium);
+    }
+  }
+
+  /* Display Section Heading (Arabic-first editorial heading) */
+  .heading-section {
+    font-family: var(--font-display-ar);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+
+  /* Editorial Eyebrow / Kicker Label */
+  .label-editorial {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-brand);
+  }
+
+  /* Generic Surface Card (used by SurfaceCard primitive) */
+  .surface-card {
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-6);
+  }
+
+  .surface-card-interactive {
+    @media (hover: hover) {
+      &:hover {
+        border-color: var(--color-border-strong);
+        box-shadow: var(--shadow-md);
+        transform: translate3d(0, -3px, 0);
+      }
+    }
+  }
+
+  .surface-card-elevated {
+    background-color: var(--color-background-elevated);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-3xl);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-6);
+  }
+
+  /* Thin Custom Scrollbar (horizontal product rails, admin panels) */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: var(--radius-full);
+      background-color: var(--color-border-strong);
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: transparent;
+    }
+  }
+}

@@ -1,0 +1,62 @@
+/* ==========================================================================
+   iPhone Man — Main Stylesheet Entrypoint
+   Imports the Central Design System theme file (src/styles/theme.css)
+   ========================================================================== */
+
+@import "./styles/theme.css";
+
+/* Keyframe Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes imageFloat {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@layer utilities {
+  .hero-float {
+    animation: imageFloat 6s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .reveal-up {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+    transition: opacity var(--duration-slow) var(--ease-standard),
+                transform var(--duration-slow) var(--ease-standard);
+  }
+
+  .reveal-up.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-up {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
