@@ -326,7 +326,7 @@
   --txt-secondary: #A1A1A6;                 /* Muted Dark text #A1A1A6 */
   --txt-tertiary: #86868B;                  /* Tertiary dark text */
   --txt-disabled: #424245;                 /* Disabled dark text */
-  --txt-inverse: #1D1D1F;                   /* Inverse text on light badges */
+  --txt-inverse: #FFFFFF;                   /* Inverse text on blue/dark surfaces */
   --txt-brand: #2B8CEB;                     /* High-contrast brand blue for dark mode */
 
   --bdr-default: #343436;                   /* Dark mode border #343436 */

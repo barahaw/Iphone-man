@@ -5,9 +5,10 @@ import { useUiStore } from '../../../shared/stores/useUiStore';
 import { useTranslation } from '../../../shared/i18n/useTranslation';
 import { Drawer } from '../../../shared/components/ui/Drawer';
 import { useNavigate } from 'react-router-dom';
+import { formatPrice } from '../../../shared/utils/format';
 
 export function CartDrawer() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const navigate = useNavigate();
   const isCartOpen = useUiStore((state) => state.isCartOpen);
   const closeCart = useUiStore((state) => state.closeCart);
@@ -87,7 +88,7 @@ export function CartDrawer() {
                   <h4 className="font-bold text-xs text-text-primary truncate">{item.name}</h4>
                   <p className="text-[10px] text-text-secondary truncate">{item.variant}</p>
                   <p className="text-xs font-bold text-text-primary">
-                    <bdi>{item.price.toLocaleString()} ₪</bdi>
+                    <bdi>{formatPrice(item.price, locale)} ₪</bdi>
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
@@ -164,13 +165,13 @@ export function CartDrawer() {
             <div className="flex justify-between text-text-secondary">
               <span>{t('common.subtotal')}</span>
               <span className="font-bold text-text-primary">
-                <bdi>{getSubtotal().toLocaleString()} ₪</bdi>
+                <bdi>{formatPrice(getSubtotal(), locale)} ₪</bdi>
               </span>
             </div>
             {getDiscountAmount() > 0 && (
               <div className="flex justify-between text-success-600 font-medium">
                 <span>{t('common.discount')}</span>
-                <span>-<bdi>{getDiscountAmount().toLocaleString()} ₪</bdi></span>
+                <span>-<bdi>{formatPrice(getDiscountAmount(), locale)} ₪</bdi></span>
               </div>
             )}
             <div className="flex justify-between text-text-secondary">
@@ -180,7 +181,7 @@ export function CartDrawer() {
             <div className="flex justify-between text-base font-bold text-text-primary pt-2 border-t border-border-default">
               <span>{t('common.total')}</span>
               <span>
-                <bdi>{getTotal().toLocaleString()} ₪</bdi>
+                <bdi>{formatPrice(getTotal(), locale)} ₪</bdi>
               </span>
             </div>
 

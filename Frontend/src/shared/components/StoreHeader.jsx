@@ -28,8 +28,10 @@ export function StoreHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme, toggleCart, locale, setLocale } = useUiStore();
-  const wishlistCount = useWishlistStore((state) => state.getItemCount());
-  const cartCount = useCartStore((state) => state.getItemCount());
+  const wishlistCount = useWishlistStore((state) => state.items.length);
+  const cartCount = useCartStore((state) =>
+    state.items.reduce((count, item) => count + item.quantity, 0)
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

@@ -221,6 +221,7 @@
     "insufficientStockError": "The requested quantity is not available in stock.",
     "orderError": "We couldn't place your order. Please try again later.",
     "orderInvalidItemError": "One or more items in your cart are no longer valid. Please remove them and try again.",
+    "demoItemsNotPurchasable": "Some items in your cart are demo catalog products that cannot be purchased right now. Please remove the demo items and try again.",
     "contactLine": "Our team will contact you on WhatsApp {phone} to confirm your order and arrange cash on delivery"
   },
   "home": {

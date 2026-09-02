@@ -4,9 +4,10 @@ import { useWishlistStore } from '../../../shared/stores/useWishlistStore';
 import { useCartStore } from '../../../shared/stores/useCartStore';
 import { useToastStore } from '../../../shared/stores/useToastStore';
 import { useTranslation } from '../../../shared/i18n/useTranslation';
+import { formatPrice } from '../../../shared/utils/format';
 
 export function WishlistPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { items, toggleWishlist, clearWishlist } = useWishlistStore();
   const addItem = useCartStore((state) => state.addItem);
   const toast = useToastStore();
@@ -75,7 +76,7 @@ export function WishlistPage() {
                   <bdi>{prod.name}</bdi>
                 </h3>
                 <p className="text-xs font-bold text-text-primary">
-                  <bdi>{prod.price.toLocaleString()} ₪</bdi>
+                  <bdi>{formatPrice(prod.price, locale)} ₪</bdi>
                 </p>
               </div>
               <div className="flex items-center gap-2 pt-2 border-t border-border-default">

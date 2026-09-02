@@ -56,30 +56,20 @@ export function CheckoutWizard() {
       }
     }
 
-    setIsSubmitting(true);
-
     // Items sourced from the embedded fallback catalog have string ids (p1…p17)
-    // with no matching backend row. Stay fully client-side in that case instead
-    // of sending NaN to the API (§7 / §30 offline fallback).
+    // with no matching backend row. Such items cannot be purchased server-side,
+    // so block the order instead of fabricating a fake client-only success (§30).
     const canReachBackend = items.every((item) => {
       const numericId = Number(item.id);
       return Number.isInteger(numericId) && numericId > 0;
     });
 
     if (!canReachBackend) {
-      completeCheckout({
-        id: `DEMO-${Date.now()}`,
-        customerName: shipping.fullName,
-        customerEmail: shipping.email,
-        total: getTotal(),
-        date: new Date().toLocaleDateString(),
-        itemsCount: items.length,
-      });
-      clearCart();
-      toast.success(t('checkout.orderSuccess'));
-      setIsSubmitting(false);
+      toast.error(t('checkout.demoItemsNotPurchasable'));
       return;
     }
+
+    setIsSubmitting(true);
 
     const orderItems = items.map((item) => ({
       productId: Number(item.id),

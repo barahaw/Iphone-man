@@ -124,7 +124,7 @@ iphone-man/
 ├── Frontend/
 │   ├── index.html
 │   ├── package.json
-│   ├── vite.config.js       # React + Tailwind v4 plugins (no proxy yet — §7)
+│   ├── vite.config.js       # React + Tailwind v4 plugins (dev proxy /api/v1 → :3000 — §7)
 │   ├── eslint.config.js
 │   ├── public/
 │   │   ├── logo.jpg  favicon.svg  placeholder-product.svg
@@ -211,7 +211,7 @@ All in `src/shared/stores/`.
 | Store | Persist key | Notes |
 | --- | --- | --- |
 | `useUiStore` | `iphone-man-ui-settings` | `locale:'ar'`, `dir:'rtl'`, `theme:'light'`; cart/wishlist/search modal flags. `partialize` persists only locale/dir/theme. `setLocale`/`setTheme` also update `<html dir/lang/.dark>`. |
-| `useCartStore` | `iphone-man-cart` | Items with variant + qty; `applyCoupon`/`removeCoupon`; totals. Seeded with 2 demo items. |
+| `useCartStore` | `iphone-man-cart` | Items with variant + qty; `applyCoupon`/`removeCoupon`; totals. Starts empty (`items: []`). |
 | `useWishlistStore` | `iphone-man-wishlist` | Seeded with 1 demo item. |
 | `useRecentlyViewedStore` | `iphone-man-recently-viewed` | Max 10, most-recent-first. |
 | `useCompareStore` | (memory) | Max 4 items. |
@@ -235,13 +235,11 @@ All in `src/shared/stores/`.
   `buildImages`, wallet-friendly `DEFAULT_WARRANTY`/`DEFAULT_DELIVERY`, and
   `getRelatedProducts`.
 
-**Integration status (important):** `vite.config.js` defines **no dev proxy** for
-`/api/v1`. In dev, `/api/v1/*` requests that don't match a Vite asset fall back
-to the SPA `index.html` (or 404) rather than reaching the API unless you either:
-(a) add a `server.proxy` entry (`'/api/v1' → backend origin`, e.g.
-`http://localhost:4000`), or (b) serve the built frontend from a host whose
-`CORS_ORIGIN` the backend allows. The offline fallback keeps the store usable in
-either case; wiring the proxy is listed in §32 as the next integration step.
+**Integration status:** `vite.config.js` **already defines a dev proxy** for
+`/api/v1` → `http://localhost:3000` (the backend `PORT`). In dev, `/api/v1/*`
+requests are forwarded to the backend through that proxy. In production, serve
+the built frontend from a host whose `CORS_ORIGIN` the backend allows. The
+offline fallback keeps the store usable when the API is unreachable either way.
 
 Product identity convention: `slug` for URLs, `id` for React keys / cart /
 wishlist / compare. Home page `LATEST_PRODUCTS` must reuse exact catalog ids
@@ -663,11 +661,17 @@ Frontend:
 ## 30. Known Limitations & Integration Status
 
 - **Frontend ↔ backend:** the SPA reads products from `/api/v1` with an offline
-  fallback catalog, and there is **no dev proxy yet** (§7). Admin, reviews,
-  checkout, coupons, wishlist, and search in the storefront are still entirely
-  client-side/demo and do **not** yet hit the backend endpoints (except
-  products). Wiring the proxy and replacing demo flows with real API calls is
-  the primary roadmap item (§32).
+  fallback catalog; a dev proxy (`/api/v1` → `http://localhost:3000`) is in place
+  (`vite.config.js`, §7). Admin, reviews, coupons, wishlist, and search in the
+  storefront are still entirely client-side/demo and do **not** yet hit the
+  backend endpoints (except products and checkout). Replacing the remaining demo
+  flows with real API calls is the primary roadmap item (§32).
+- **Fallback-catalog cannot be purchased:** products sourced from the embedded
+  fallback catalog carry string ids (`p1`…`p17`) with no matching backend row.
+  If any cart item has such an id, checkout **blocks the order** and shows the
+  localized `checkout.demoItemsNotPurchasable` error — it never fabricates a
+  fake success (CheckoutWizard.jsx, §14). This mainly happens when the API is
+  unreachable so the store renders fallback products.
 - **Checkout is connected** (COD-only): `POST /api/v1/checkout` persists the
   order server-side and step 3 reads the real `id`/`total` from the response,
   with specific toasts for `PRODUCT_NOT_FOUND` / `INSUFFICIENT_STOCK`. Coupons
@@ -696,8 +700,9 @@ Frontend:
 
 ## 32. Future Improvements
 
-1. Add the Vite dev proxy for `/api/v1` and switch PLP/PDP to rely on the live
-   API (keep the fallback for offline/demo).
+1. The Vite dev proxy for `/api/v1` is now in place (`vite.config.js`). Consider
+   switching PLP/PDP to rely entirely on the live API in production (keep the
+   fallback for offline/demo).
 2. Wire storefront cart/checkout/coupon/review flows to the real backend
    endpoints (auth-less storefront endpoints already exist).
 3. Frontend admin → backend admin API (CRUD products/orders/categories/brands/
@@ -793,7 +798,7 @@ must show the English string, never a blank field.
 
 ### 36.4 Locale Key Files
 
-- `src/locales/{en,ar,he}.json` — **397 keys each**, and flattened key sets
+- `src/locales/{en,ar,he}.json` — **405 keys each**, and flattened key sets
   **must stay identical** across the three files. Add a key to all three at the
   same position.
 - Namespaces: `common.*`, `nav.*`, `pdp.*`, `checkout.*`, `compare.*`,
@@ -834,7 +839,7 @@ Adding a storefront feature end to end:
 - [ ] Affected package(s): `npm run lint` clean (no errors) and `npm run build`
       succeeds.
 - [ ] New strings present in **all three** locale files; key sets identical
-      (397 each — §36.4).
+      (405 each — §36.4).
 - [ ] No legacy tokens introduced; grep for
       `bg-surface|text-foreground|bg-tech` outside `INSTRUCTIONS.md` returns
       nothing in `Frontend/src`.

@@ -1,6 +1,7 @@
 import { SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from '../../../shared/i18n/useTranslation';
 import { useFilterStore } from '../../../shared/stores/useFilterStore';
+import { formatPrice } from '../../../shared/utils/format';
 
 const BRANDS = ['Apple', 'Samsung', 'Google', 'Nothing'];
 const CATEGORIES = [
@@ -10,7 +11,7 @@ const CATEGORIES = [
 ];
 
 export function FilterSidebar({ isMobile = false, onClose }) {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const {
     selectedCategories,
     toggleCategory,
@@ -85,7 +86,7 @@ export function FilterSidebar({ isMobile = false, onClose }) {
             {t('common.price')}
           </label>
           <span className="text-[11px] font-bold text-text-brand">
-            <bdi>0 — {maxPrice.toLocaleString()} ₪</bdi>
+            <bdi>0 — {formatPrice(maxPrice, locale)} ₪</bdi>
           </span>
         </div>
         <input
