@@ -136,10 +136,11 @@ iphone-man/
 │       ├── locales/{en,ar,he}.json
 │       ├── shared/
 │       │   ├── api/productsApi.js      # backend-first + fallback catalog
+│       │   ├── api/adminApi.js         # real backend admin CRUD (JWT access token)
 │       │   ├── i18n/useTranslation.js  # t(path,fallback), EN fallback (§36.2)
 │       │   ├── stores/    # useUiStore, useCartStore, useWishlistStore,
 │       │   │               # useCompareStore, useFilterStore, useCheckoutStore,
-│       │   │               # useRecentlyViewedStore, useToastStore
+│       │   │               # useRecentlyViewedStore, useToastStore, useAdminStore
 │       │   ├── components/ StoreHeader, Footer, FloatingChat, Toast
 │       │   │   └── ui/    Button, Input, Drawer, CompareTray, SurfaceCard, Reveal
 │       │   └── layouts/   StoreLayout, AdminLayout
@@ -154,7 +155,9 @@ iphone-man/
 │           ├── wishlist/     components/WishlistPage.jsx
 │           ├── info/         AboutPage, ContactPage
 │           └── admin/        AdminLogin, AdminNavButton, AdminDashboard,
-│                              AddProduct, AdminSettings
+│                              AdminOrders, AdminOrderDetail, AdminProducts,
+│                              EditProduct, AddProduct, AdminCustomers,
+│                              AdminCoupons, AdminReviews, AdminSettings
 └── backend/
     ├── package.json  tsconfig.json  eslint.config.js  openapi.json
     ├── .env.example/gitignore
@@ -262,7 +265,14 @@ Defined in `src/App.jsx`.
 | `/checkout` | CheckoutWizard | **Yes** | StoreLayout | |
 | `/admin/login` | AdminLogin | **Yes** | standalone | |
 | `/admin` | AdminDashboard | **Yes** | AdminLayout | auth guard |
+| `/admin/orders` | AdminOrders | **Yes** | AdminLayout | auth guard |
+| `/admin/orders/:id` | AdminOrderDetail | **Yes** | AdminLayout | auth guard |
+| `/admin/products` | AdminProducts | **Yes** | AdminLayout | auth guard |
+| `/admin/products/:slug/edit` | EditProduct | **Yes** | AdminLayout | auth guard |
 | `/admin/add` | AddProduct | **Yes** | AdminLayout | auth guard |
+| `/admin/customers` | AdminCustomers | **Yes** | AdminLayout | auth guard |
+| `/admin/coupons` | AdminCoupons | **Yes** | AdminLayout | auth guard |
+| `/admin/reviews` | AdminReviews | **Yes** | AdminLayout | auth guard |
 | `/admin/settings` | AdminSettings | **Yes** | AdminLayout | auth guard |
 
 Rules:
@@ -491,19 +501,26 @@ labels; `ReviewCard` formats dates per active locale. `RecentlyViewedSection`
 renders up to 10 items from `useRecentlyViewedStore` and falls back to
 `placeholder-product.svg` when an item has no image.
 
-## 19. Frontend Admin (Demo)
+## 19. Frontend Admin (Real Backend)
 
-- **Demo auth only:** `AdminLogin` pre-fills `admin@iphoneman.com` /
-  `password123`; on submit writes `localStorage.adminToken =
-  "jwt_mock_token_super_admin"` and navigates to `/admin`; a present token
-  redirects straight there.
-- `AdminLayout` guards all `/admin/*` routes (no token → `/admin/login`);
-  sidebar labels from `nav.*`/`admin.*` keys; logout clears the token.
-- Screens: `AdminDashboard` (KPI cards; top-categories list uses
-  `nav.accessories` **not** `nav.cases` — that key is gone), `AddProduct`
-  (full demo form, writes nothing), `AdminSettings` (demo form).
-- This demo is the UI stepping stone for the real backend admin API (§17); data
-  is **not** persisted in the frontend.
+- **Real backend auth:** login calls `adminLogin` (POST `/api/v1/admin/auth/login`).
+  The backend issues a short-lived JWT **access token** (held **in memory only**,
+  never persisted, via `useAdminStore`) and an **httpOnly refresh cookie** the
+  browser sends automatically on refresh. Login fields start **empty** — no
+  pre-filled credentials.
+- `AdminLayout` guards all `/admin/*` routes: on mount it calls `tryRefresh()` to
+  silently obtain a fresh access token from the httpOnly cookie; failure →
+  redirect to `/admin/login`. Logout calls the revoke endpoint and clears local
+  state. `accessToken` is passed to every `adminApi` call.
+- Screens: **Dashboard** (KPI cards + recent orders + top products + low-stock
+  alerts), **Orders** (list + status filter + pagination), **Order Detail**
+  (items, totals, customer, shipping, status transitions), **Products** (list +
+  delete), **Edit Product** (full form), **Add Product** (create form),
+  **Customers** (aggregate list w/ spend), **Coupons** (CRUD + usage limits),
+  **Reviews** (approve/reject moderation), **Settings**, **Login**.
+- All reads/writes hit the real backend admin API (`shared/api/adminApi.js`)
+  using the in-memory access token; RBAC (e.g. super_admin-only deletes) is
+  enforced server-side and gated in the UI via `admin.role`.
 
 ---
 
@@ -650,7 +667,10 @@ Frontend:
 
 ## 29. Demo Access & Credentials
 
-**Frontend demo admin:** `admin@iphoneman.com` / `password123` (pre-filled).
+**Frontend admin auth** goes through the **real backend** seed super-admin
+(`admin@iphoneman.test` / `Admin12345`); the login form starts empty (no
+pre-filled demo credentials) and authenticates against
+`POST /api/v1/admin/auth/login` (§19, §17).
 **Frontend coupons:** `SAVE10` (10% off), `FREE20` (20 ₪ off) — hardcoded (§13).
 **Backend seed users:** `admin@iphoneman.test` / `Admin12345` (store super admin);
 `repair.admin@iphoneman.test` / `Maintain123`; `repair.worker@iphoneman.test` /
@@ -662,16 +682,23 @@ Frontend:
 
 - **Frontend ↔ backend:** the SPA reads products from `/api/v1` with an offline
   fallback catalog; a dev proxy (`/api/v1` → `http://localhost:3000`) is in place
-  (`vite.config.js`, §7). Admin, reviews, coupons, wishlist, and search in the
-  storefront are still entirely client-side/demo and do **not** yet hit the
-  backend endpoints (except products and checkout). Replacing the remaining demo
-  flows with real API calls is the primary roadmap item (§32).
+  (`vite.config.js`, §7). The **admin panel now hits the real backend** (§19);
+  reviews, coupons, wishlist, and search in the storefront are still
+  client-side/demo and do **not** yet hit the backend endpoints (products,
+  checkout, and admin are the exceptions). Replacing the remaining demo flows
+  with real API calls is the primary roadmap item (§32).
 - **Fallback-catalog cannot be purchased:** products sourced from the embedded
   fallback catalog carry string ids (`p1`…`p17`) with no matching backend row.
   If any cart item has such an id, checkout **blocks the order** and shows the
   localized `checkout.demoItemsNotPurchasable` error — it never fabricates a
   fake success (CheckoutWizard.jsx, §14). This mainly happens when the API is
   unreachable so the store renders fallback products.
+- **HomePage "Latest Arrivals" fallback-id bug fixed** (§10): the section no
+  longer hardcodes `p`-prefixed demo ids. It now fetches real, numeric-id,
+  purchasable products via `fetchProducts({ sort: 'newest', limit: 4 })`
+  (React Query, §5) and only falls back to the shared offline catalog when the
+  API is unreachable — so the homepage no longer lets users add demo items that
+  would be blocked at checkout.
 - **Checkout is connected** (COD-only): `POST /api/v1/checkout` persists the
   order server-side and step 3 reads the real `id`/`total` from the response,
   with specific toasts for `PRODUCT_NOT_FOUND` / `INSUFFICIENT_STOCK`. Coupons
@@ -798,7 +825,7 @@ must show the English string, never a blank field.
 
 ### 36.4 Locale Key Files
 
-- `src/locales/{en,ar,he}.json` — **405 keys each**, and flattened key sets
+- `src/locales/{en,ar,he}.json` — **528 keys each**, and flattened key sets
   **must stay identical** across the three files. Add a key to all three at the
   same position.
 - Namespaces: `common.*`, `nav.*`, `pdp.*`, `checkout.*`, `compare.*`,
@@ -839,7 +866,7 @@ Adding a storefront feature end to end:
 - [ ] Affected package(s): `npm run lint` clean (no errors) and `npm run build`
       succeeds.
 - [ ] New strings present in **all three** locale files; key sets identical
-      (405 each — §36.4).
+      (528 each — §36.4).
 - [ ] No legacy tokens introduced; grep for
       `bg-surface|text-foreground|bg-tech` outside `INSTRUCTIONS.md` returns
       nothing in `Frontend/src`.
