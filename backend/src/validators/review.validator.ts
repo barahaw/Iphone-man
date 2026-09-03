@@ -16,5 +16,9 @@ export const reviewStatusSchema = z.object({
   status: z.enum(["pending", "approved", "rejected"])
 });
 
+export const reviewStatusQuerySchema = z.object({
+  status: z.enum(["pending", "approved", "rejected"]).optional()
+});
+
 export type CreateReviewInput = z.infer<typeof createReviewSchema>;
 

@@ -17,6 +17,10 @@ export const reviewService = {
     return reviewModel.listByProduct(productId);
   },
 
+  listForAdmin(status?: string) {
+    return reviewModel.listForAdmin(status);
+  },
+
   async updateStatus(id: number, status: string) {
     const review = await reviewModel.updateStatus(id, status);
     if (!review) {

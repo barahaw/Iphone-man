@@ -28,6 +28,27 @@ const AdminDashboard = lazy(() =>
 const AddProduct = lazy(() =>
   import('./features/admin/components/AddProduct').then((m) => ({ default: m.default }))
 );
+const AdminOrders = lazy(() =>
+  import('./features/admin/components/AdminOrders').then((m) => ({ default: m.AdminOrders }))
+);
+const AdminOrderDetail = lazy(() =>
+  import('./features/admin/components/AdminOrderDetail').then((m) => ({ default: m.AdminOrderDetail }))
+);
+const AdminProducts = lazy(() =>
+  import('./features/admin/components/AdminProducts').then((m) => ({ default: m.AdminProducts }))
+);
+const EditProduct = lazy(() =>
+  import('./features/admin/components/EditProduct').then((m) => ({ default: m.EditProduct }))
+);
+const AdminCustomers = lazy(() =>
+  import('./features/admin/components/AdminCustomers').then((m) => ({ default: m.AdminCustomers }))
+);
+const AdminCoupons = lazy(() =>
+  import('./features/admin/components/AdminCoupons').then((m) => ({ default: m.AdminCoupons }))
+);
+const AdminReviews = lazy(() =>
+  import('./features/admin/components/AdminReviews').then((m) => ({ default: m.AdminReviews }))
+);
 const AdminSettings = lazy(() =>
   import('./features/admin/components/AdminSettings').then((m) => ({ default: m.default }))
 );
@@ -73,7 +94,14 @@ export default function App() {
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/products/:slug/edit" element={<EditProduct />} />
             <Route path="/admin/add" element={<AddProduct />} />
+            <Route path="/admin/customers" element={<AdminCustomers />} />
+            <Route path="/admin/coupons" element={<AdminCoupons />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Routes>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -17,6 +18,7 @@ import { RecentlyViewedSection } from '../../products/components/RecentlyViewedS
 import { Reveal } from '../../../shared/components/ui/Reveal';
 import { SurfaceCard } from '../../../shared/components/ui/SurfaceCard';
 import { useTranslation } from '../../../shared/i18n/useTranslation';
+import { fetchProducts } from '../../../shared/api/productsApi';
 
 const CATEGORIES = [
   { nameKey: 'home.smartphones', image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=900&auto=format&fit=crop&q=82', link: '/products?category=smartphones', icon: Smartphone },
@@ -25,15 +27,19 @@ const CATEGORIES = [
   { nameKey: 'home.audio', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=900&auto=format&fit=crop&q=82', link: '/products?category=accessories', icon: AudioLines },
 ];
 
-const LATEST_PRODUCTS = [
-  { id: 'p17', name: 'iPhone 17 Pro', slug: 'iphone-17-pro', subtitle: 'Titanium — 256GB', brand: 'Apple', price: 4299, isNew: true, inStock: true, image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=700&auto=format&fit=crop&q=82' },
-  { id: 'p2', name: 'Galaxy S24 Ultra', slug: 'galaxy-s24-ultra', subtitle: 'Titanium Gray — 512GB', brand: 'Samsung', price: 4899, inStock: true, image: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=700&auto=format&fit=crop&q=82' },
-  { id: 'p3', name: 'Pixel 9 Pro', slug: 'google-pixel-9-pro', subtitle: '128GB — Obsidian', brand: 'Google', price: 3799, isNew: true, inStock: true, image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=700&auto=format&fit=crop&q=82' },
-  { id: 'p4', name: 'AirPods Max', slug: 'airpods-max', subtitle: 'Wireless Over-Ear', brand: 'Apple', price: 2150, inStock: true, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=700&auto=format&fit=crop&q=82' },
-];
-
 export function HomePage() {
   const { t } = useTranslation();
+
+  // "Latest Arrivals" — real product data from the live API (React Query, §5).
+  // fetchProducts falls back to the offline catalog when the API is unreachable (§7).
+  const { data: latestProducts = [], isLoading } = useQuery({
+    queryKey: ['products', 'newest'],
+    queryFn: async () => {
+      const result = await fetchProducts({ sort: 'newest', limit: 4 });
+      return Array.isArray(result) ? result.slice(0, 4) : result.products || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <div className="text-start">
@@ -135,11 +141,28 @@ export function HomePage() {
           </div>
         </Reveal>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {LATEST_PRODUCTS.map((product, index) => (
-            <Reveal key={product.id} delay={index * 60}>
-              <ProductCard product={product} />
-            </Reveal>
-          ))}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <Reveal key={i} delay={i * 60}>
+                <div className="rounded-2xl border border-border-default bg-background-secondary p-4 space-y-3 animate-pulse">
+                  <div className="aspect-square rounded-xl bg-background-primary" />
+                  <div className="h-3 bg-background-primary rounded w-1/3" />
+                  <div className="h-4 bg-background-primary rounded w-2/3" />
+                  <div className="h-3 bg-background-primary rounded w-1/4" />
+                </div>
+              </Reveal>
+            ))
+          ) : latestProducts.length > 0 ? (
+            latestProducts.map((product, index) => (
+              <Reveal key={product.id} delay={index * 60}>
+                <ProductCard product={product} />
+              </Reveal>
+            ))
+          ) : (
+            <div className="col-span-full py-10 text-center text-sm text-text-secondary">
+              {t('home.noLatestProducts')}
+            </div>
+          )}
         </div>
       </section>
 

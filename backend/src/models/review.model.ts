@@ -33,6 +33,22 @@ export const reviewModel = {
     return result.rows;
   },
 
+  async listForAdmin(status?: string) {
+    const whereSql = status ? "WHERE r.status = $1" : "";
+    const values: unknown[] = status ? [status] : [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await pool.query<any[]>(
+      `SELECT r.id, r.product_id, r.reviewer_name, r.reviewer_email, r.rating, r.comment,
+        r.status, r.created_at, p.name AS product_name, p.slug AS product_slug
+      FROM reviews r
+      JOIN products p ON p.id = r.product_id
+      ${whereSql}
+      ORDER BY r.created_at DESC`,
+      values
+    );
+    return result.rows;
+  },
+
   async updateStatus(id: number, status: string) {
     const result = await pool.query(
       "UPDATE reviews SET status = $2 WHERE id = $1 RETURNING *",
